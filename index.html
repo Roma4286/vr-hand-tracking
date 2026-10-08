@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Скорость рук</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    #chart { position: relative; margin-top: 15px; cursor: pointer; }
+    #chart img { width: 100%; display: block; }
+    #line { position: absolute; width: 2px; background: red; }
+  </style>
+</head>
+<body>
+
+  <video id="video" controls style="width: 100%; max-width: 960px"></video>
+  <p id="warning" style="display: none; color: #b00020; max-width: 960px">
+    Не удалось открыть видео <b id="video-file"></b>.<br>
+    Проверьте, что файл лежит по этому пути рядом с index.html, и откройте страницу в браузере,
+    который умеет H.264: Firefox, Chrome или Edge. Chromium и встроенный просмотрщик VS Code H.264 не поддерживают.
+  </p>
+
+  <div id="chart">
+    <img src="timeline.png">
+    <div id="line"></div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    var video = document.getElementById('video');
+    var line = document.getElementById('line');
+    var chart = document.getElementById('chart');
+
+    line.style.top = (1 - GRAPH_BOTTOM - GRAPH_HEIGHT) * 100 + '%';
+    line.style.bottom = GRAPH_BOTTOM * 100 + '%';
+
+    video.onerror = function () {
+      document.getElementById('video-file').textContent = VIDEO_FILE;
+      document.getElementById('warning').style.display = 'block';
+    };
+    video.src = VIDEO_FILE;
+
+    setInterval(function () {
+      var share = GRAPH_LEFT + video.currentTime / VIDEO_LENGTH * GRAPH_WIDTH;
+      line.style.left = share * 100 + '%';
+    }, 40);
+
+    chart.onclick = function (event) {
+      var box = chart.getBoundingClientRect();
+      var share = (event.clientX - box.left) / box.width;
+      video.currentTime = (share - GRAPH_LEFT) / GRAPH_WIDTH * VIDEO_LENGTH;
+    };
+  </script>
+
+</body>
+</html>
